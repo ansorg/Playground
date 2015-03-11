@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script>
+    window.onload = function () {
+
+        jsonFlickrApiasync().then(function (result) {
+            console.info(result)
+        });
+
+        var xhr = getXhr("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json");
+        xhr.onload = function(result) { console.info(result); };
+        xhr.send();
+
+        var jsp = getJsonP("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json");
+
+    };
+
+    var getJsonP = function (url) {
+        var scr = document.createElement("script");
+        scr.setAttribute("src", url);
+        scr.setAttribute("onerror", function(e){ console.log(e); })
+        document.documentElement.firstElementChild.appendChild(scr);
+    }
+
+    function jsonFlickrApiasync() {
+        return new Promise(function (resolve, reject) {
+            window['jsonFlickrApi'] = resolve;
+        })
+    };
+
+    var getXhr = function(url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        //xhr.setRequestHeader("Content-Type", "application/jsonp");
+        return xhr;
+    }
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
