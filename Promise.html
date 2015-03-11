@@ -6,39 +6,34 @@
     <script>
         //http://stackoverflow.com/questions/22519784/how-do-i-convert-an-existing-callback-api-to-promises
 
-    window.onload = function () {
+        window.onload = function () {
 
-        jsonFlickrApiasync().then(function (result) {
-            console.info(result)
-        });
+            jsonFlickrApiAsync().then(function (result) {
+                console.info("in resolve", result);
+            });
 
-        var xhr = getXhr("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json");
-        xhr.onload = function(result) { console.info(result); };
-        xhr.send();
+            console.info("loading the JSONP");
+            loadJsonP("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json&method=a");
+            loadJsonP("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json&method=b");
+        };
 
-        var jsp = getJsonP("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json");
+        var loadJsonP = function (url) {
+            var scr = document.createElement("script");
+            scr.setAttribute("src", url);
+            scr.setAttribute("onerror", function (e) {
+                console.log(e);
+            })
+            document.documentElement.firstElementChild.appendChild(scr);
+        }
 
-    };
+        function jsonFlickrApiAsync() {
+            console.info("building the promise");
+            return new Promise(function (resolve, reject) {
+                console.info("in 'new Promise'");
+                window['jsonFlickrApi'] = resolve;
+            })
+        }
 
-    var getJsonP = function (url) {
-        var scr = document.createElement("script");
-        scr.setAttribute("src", url);
-        scr.setAttribute("onerror", function(e){ console.log(e); })
-        document.documentElement.firstElementChild.appendChild(scr);
-    }
-
-    function jsonFlickrApiasync() {
-        return new Promise(function (resolve, reject) {
-            window['jsonFlickrApi'] = resolve;
-        })
-    };
-
-    var getXhr = function(url) {
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url);
-        //xhr.setRequestHeader("Content-Type", "application/jsonp");
-        return xhr;
-    }
 
     </script>
 </head>
