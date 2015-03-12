@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script>
+        //http://stackoverflow.com/questions/22519784/how-do-i-convert-an-existing-callback-api-to-promises
+
+        var taskSet = [
+            {nr:1, name: "one", url: "https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=16ef420c60f8899b3617e773b56508ee&photoset_id=72157644400632823&format=json&nojsoncallback=0&api_sig=4607cf37743a2797c5da1735582c9ac6"}
+            ,{nr:2, name: "zwo", url: "https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json&&nojsoncallback=0"}
+            ,{nr:3, name: "zwo", url: "https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=16ef420c60f8899b3617e773b56508ee&format=json&&nojsoncallback=0"}
+        ];
+
+        window.onload = function () {
+
+            jsonFlickrApiAsync().then(function (result) {
+                console.info("in resolve", result);
+            });
+
+            console.info("loading the JSONP");
+            taskSet.forEach(function(taskDef){
+                loadJsonP(taskDef.url);
+            });
+        };
+
+        var loadJsonP = function (url) {
+            var scr = document.createElement("script");
+            scr.setAttribute("src", url);
+            scr.setAttribute("onerror", function (e) {
+                console.log(e);
+            })
+            document.documentElement.firstElementChild.appendChild(scr);
+        }
+
+        function jsonFlickrApiAsync() {
+            console.info("building the promise");
+            return new Promise(function (resolve, reject) {
+                console.info("in 'new Promise'");
+                window['jsonFlickrApi'] = resolve;
+            })
+        }
+
+
+    </script>
+</head>
+<body>
+
+</body>
+</html>
