@@ -4,37 +4,54 @@
     <meta charset="UTF-8">
     <title></title>
     <script>
-        //http://stackoverflow.com/questions/22519784/how-do-i-convert-an-existing-callback-api-to-promises
+
+        var taskSet = [
+            {nr:1, name: "one", url: "https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=16ef420c60f8899b3617e773b56508ee&photoset_id=72157644400632823&format=json&nojsoncallback=1&api_sig=4607cf37743a2797c5da1735582c9ac6"}
+            ,{nr:2, name: "zwo", url: "https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json&&nojsoncallback=1"}
+            ,{nr:3, name: "zwo", url: "https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=16ef420c60f8899b3617e773b56508ee&format=json&&nojsoncallback=1"}
+        ];
+
 
         window.onload = function () {
 
-            jsonFlickrApiAsync().then(function (result) {
-                console.info("in resolve", result);
-            });
+            var tasks = [];
 
-            console.info("loading the JSONP");
-            loadJsonP("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json&method=a");
-            loadJsonP("https://api.flickr.com/services/rest/?method=flickr.test.echo&api_key=1e4a63d700064d6eba2bca1aeefdd842&format=json&method=b");
+            taskSet.forEach(function (taskDef) {
+                console.info("creating task for", taskDef.name);
+                var p = new Promise(function(resolve, reject) {
+                    getXhr(taskDef.url, function(data){
+                        console.info(data);
+                        resolve({task: taskDef, data: data});
+                    }).send();
+                });
+                tasks.push(p);
+            })
+
+
+            Promise.all(tasks).then(function(value){
+                console.log("Promise.all", value);
+                var result = [];
+                var output = document.createElement("ul");
+                value.forEach(function(val){
+                    result.push( val.data.type === 'load' ? val.data.target.response : val.data);
+                    var li = document.createElement("li");
+                    li.innerHTML = "Task: " + val.task.name + ", Result: " + result[result.length-1];
+                    output.appendChild(li);
+                })
+                console.info("ALL DONE with result", result);
+                document.documentElement.lastElementChild.appendChild(output);
+            });
         };
 
-        var loadJsonP = function (url) {
-            var scr = document.createElement("script");
-            scr.setAttribute("src", url);
-            scr.setAttribute("onerror", function (e) {
-                console.log(e);
-            })
-            document.documentElement.firstElementChild.appendChild(scr);
+        var getXhr = function(url, success, error) {
+            console.info("build xhr");
+            var xhr = new XMLHttpRequest();
+            xhr.onload = success;
+            xhr.onerror = error;
+            xhr.open("GET", url);
+            //xhr.setRequestHeader("Content-Type", "application/jsonp");
+            return xhr;
         }
-
-        function jsonFlickrApiAsync() {
-            console.info("building the promise");
-            return new Promise(function (resolve, reject) {
-                console.info("in 'new Promise'");
-                window['jsonFlickrApi'] = resolve;
-            })
-        }
-
-
     </script>
 </head>
 <body>
